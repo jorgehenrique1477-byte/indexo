@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Demonstração de portal de notícias regional.">
+<title>Agora Notícias — Demonstração</title>
+<style>
+:root{
+  --ink:#111417; --muted:#697078; --line:#e4e7ea; --soft:#f5f6f7;
+  --accent:#c71927; --accent-dark:#99141f; --white:#fff; --max:1180px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:#fff;color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+button,input{font:inherit}
+a{color:inherit}
+.container{width:min(var(--max),calc(100% - 36px));margin:auto}
+.topbar{background:#101214;color:#aeb4ba;font-size:12px}
+.topbar-inner{height:34px;display:flex;align-items:center;justify-content:space-between}
+.header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}
+.header-main{height:84px;display:flex;align-items:center;justify-content:space-between}
+.logo{text-decoration:none;display:flex;align-items:baseline;gap:7px}
+.logo strong{font-size:29px;letter-spacing:-1.6px}
+.logo span{font-size:10px;letter-spacing:2.2px;color:#777}
+.header-actions{display:flex;gap:9px}
+.icon-btn{border:1px solid #d8dce0;background:#fff;color:#16191c;border-radius:6px;padding:10px 13px;cursor:pointer;font-weight:700;font-size:13px}
+.icon-btn:hover{background:#f4f5f6}
+.menu-btn{display:none}
+.nav{background:#111416}
+.nav-inner{display:flex;overflow:auto}
+.nav a{color:#fff;text-decoration:none;text-transform:uppercase;font-size:12px;font-weight:800;letter-spacing:.25px;padding:14px 16px;white-space:nowrap}
+.nav a:hover,.nav a.active{background:#2a2d30}
+.search-panel{display:none;background:#f4f5f6;border-bottom:1px solid var(--line);padding:12px 0}
+.search-panel.open{display:block}
+.search-wrap{position:relative}
+.search-wrap input{width:100%;padding:13px 44px 13px 14px;border:1px solid #d5d9dd;border-radius:6px;background:#fff;outline:none}
+.search-wrap input:focus{border-color:#aeb4ba;box-shadow:0 0 0 3px rgba(0,0,0,.04)}
+.clear-search{position:absolute;right:8px;top:7px;border:0;background:transparent;padding:7px;color:#777;cursor:pointer}
+.ad{background:#f6f7f8;border:1px dashed #c9ced3;color:#858b91;display:flex;align-items:center;justify-content:center;text-align:center;font-size:10px;letter-spacing:1.1px}
+.ad-top{height:90px;margin:22px 0}
+.ad-side{min-height:250px;margin:0 0 20px}
+.ad-wide{height:180px;margin:36px 0}
+.breaking{display:flex;border:1px solid var(--line);margin:22px 0;min-height:43px;align-items:center}
+.breaking-label{background:var(--accent);color:#fff;font-size:10px;font-weight:900;letter-spacing:.6px;padding:14px 15px}
+.breaking-text{padding:0 14px;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(300px,1fr);gap:24px}
+.hero{border:1px solid var(--line);overflow:hidden;cursor:pointer;background:#fff}
+.media{position:relative;overflow:hidden;background:linear-gradient(135deg,#202a33,#8d9aa5)}
+.media::before{content:"";position:absolute;inset:0;background:
+ radial-gradient(circle at 70% 25%,rgba(255,255,255,.22),transparent 25%),
+ linear-gradient(125deg,transparent 45%,rgba(255,255,255,.12) 46%,transparent 60%)}
+.media::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.34),transparent 55%)}
+.media.has-photo{background-size:cover;background-position:center}
+.media.has-photo::before{background:linear-gradient(to top,rgba(0,0,0,.18),transparent 58%)}
+.media.has-photo::after{background:linear-gradient(to top,rgba(0,0,0,.28),transparent 55%)}
+.source-note{display:block;color:#92979c;font-size:10px;margin-top:7px}
+.demo-source{font-size:10px;color:#777;margin-top:6px}
+.media.large{height:350px}
+.media.m1{background:linear-gradient(135deg,#203440,#b0a18d)}
+.media.m2{background:linear-gradient(135deg,#354a59,#aeb7bb)}
+.media.m3{background:linear-gradient(135deg,#463c35,#c5ad91)}
+.media.m4{background:linear-gradient(135deg,#30474c,#9db6ad)}
+.media.m5{background:linear-gradient(135deg,#493c50,#bca7be)}
+.media.m6{background:linear-gradient(135deg,#354638,#b4c2ad)}
+.media.m7{background:linear-gradient(135deg,#4a3d32,#c8b39a)}
+.media.m8{background:linear-gradient(135deg,#273b4e,#9db1c0)}
+.media.m9{background:linear-gradient(135deg,#3e4540,#b6bdac)}
+.media .tag{position:absolute;left:14px;top:14px;z-index:2;background:#fff;color:#111;padding:6px 8px;font-size:9px;font-weight:900;letter-spacing:.7px}
+.hero-copy{padding:20px}
+.kicker{color:var(--accent);font-size:10px;font-weight:900;letter-spacing:1px;text-transform:uppercase}
+.hero h1{font-size:31px;line-height:1.08;margin:7px 0 10px;letter-spacing:-.6px}
+.excerpt{color:#5e656c;line-height:1.5;font-size:14px;margin:0 0 13px}
+.meta{color:#8b9197;font-size:11px}
+.side-stories{display:flex;flex-direction:column;gap:18px}
+.story-card{display:grid;grid-template-columns:155px 1fr;gap:14px;border-bottom:1px solid var(--line);padding-bottom:18px;cursor:pointer}
+.story-card .media{height:116px}
+.story-card h2{font-size:18px;line-height:1.16;margin:5px 0 9px;letter-spacing:-.2px}
+.content-grid{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:34px;margin-top:4px}
+.section-heading{display:flex;align-items:end;justify-content:space-between;border-bottom:2px solid #16191c;padding-bottom:9px;margin:28px 0 0}
+.section-heading h2{font-size:21px;margin:0;letter-spacing:-.3px}
+.section-heading a{font-size:11px;color:var(--accent);font-weight:800;text-decoration:none}
+.news-list{display:flex;flex-direction:column}
+.news-item{display:grid;grid-template-columns:220px 1fr;gap:18px;padding:18px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.news-item .media{height:135px}
+.news-item h3{font-size:20px;line-height:1.16;margin:4px 0 7px}
+.news-item p{font-size:13px;color:#636a71;margin:0 0 9px;line-height:1.45}
+.no-results{display:none;padding:34px 0;color:#737a80;text-align:center}
+.most-read{margin:0;padding:0;list-style:none}
+.most-read li{display:grid;grid-template-columns:35px 1fr;gap:8px;padding:14px 0;border-bottom:1px solid #eee;cursor:pointer}
+.most-read b{font-size:21px;color:#c3c8cc}
+.most-read span{font-size:13px;line-height:1.3}
+.side-box{border:1px solid var(--line);padding:0 15px 8px}
+.side-box .section-heading{margin-top:0}
+.cards-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.grid-card{cursor:pointer}
+.grid-card .media{height:180px;margin-bottom:12px}
+.grid-card h3{font-size:18px;line-height:1.17;margin:5px 0 8px}
+.newsletter{background:#111416;color:#fff;margin:38px 0;padding:29px;display:flex;justify-content:space-between;align-items:center;gap:28px}
+.newsletter .eyebrow{font-size:10px;letter-spacing:1.5px;color:#bfc3c6}
+.newsletter h2{font-size:25px;margin:7px 0}
+.newsletter p{margin:0;color:#aeb4b9;font-size:13px}
+.newsletter form{display:flex;min-width:390px}
+.newsletter input{flex:1;border:0;padding:13px 12px;outline:none}
+.newsletter button{border:0;background:var(--accent);color:#fff;font-weight:900;padding:0 17px;cursor:pointer}
+footer{background:#111416;color:#aeb4b9;margin-top:12px}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1.5fr;gap:40px;padding:35px 0}
+.footer-logo strong{color:#fff}.footer-logo span{color:#8f969c}
+.footer-grid p,.footer-grid a{font-size:12px}.footer-grid a{display:block;text-decoration:none;margin:8px 0}.footer-grid h4{color:#fff;margin:0 0 13px;font-size:13px}
+.copyright{border-top:1px solid #292d30;text-align:center;padding:15px;font-size:10px}
+.demo-note{background:#fff8e6;border:1px solid #ead59b;color:#69572a;padding:10px 13px;font-size:11px;line-height:1.4;margin:18px 0}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.62);display:none;align-items:center;justify-content:center;padding:20px;z-index:100}
+.modal.open{display:flex}
+.modal-card{background:#fff;width:min(820px,100%);max-height:90vh;overflow:auto;border-radius:8px}
+.modal-top{display:flex;justify-content:flex-end;padding:10px}
+.close{border:0;background:#f0f1f2;width:34px;height:34px;border-radius:50%;cursor:pointer;font-weight:900}
+.modal-content{padding:0 30px 32px}
+.modal-content .media{height:300px;margin:0 -30px 25px}
+.modal-content h2{font-size:31px;line-height:1.1;margin:8px 0 12px}
+.modal-content p{color:#5f666c;line-height:1.7;font-size:15px}
+.toast{position:fixed;right:18px;bottom:18px;background:#111416;color:#fff;padding:13px 16px;border-radius:6px;font-size:12px;opacity:0;transform:translateY(8px);pointer-events:none;transition:.2s;z-index:120}
+.toast.show{opacity:1;transform:translateY(0)}
+@media(max-width:820px){
+ .container{width:min(100% - 22px,680px)}
+ .menu-btn{display:block}
+ .nav{display:none}.nav.open{display:block}
+ .nav-inner{flex-direction:column}.nav a{padding:12px}
+ .hero-grid,.content-grid{grid-template-columns:1fr}
+ .side-stories{margin-top:2px}
+ .cards-3{grid-template-columns:1fr}
+ .newsletter{display:block}.newsletter form{min-width:0;margin-top:20px}
+ .footer-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:560px){
+ .topbar{display:none}.header-main{height:68px}
+ .logo strong{font-size:25px}.logo span{font-size:9px}
+ .header-actions .icon-btn:first-child{display:none}
+ .hero .media.large{height:235px}.hero h1{font-size:25px}
+ .story-card{grid-template-columns:105px 1fr}.story-card .media{height:92px}.story-card h2{font-size:15px}
+ .news-item{grid-template-columns:105px 1fr;gap:11px}.news-item .media{height:82px}
+ .news-item h3{font-size:16px}.news-item p{display:none}
+ .newsletter{padding:22px}.newsletter form{display:block}.newsletter input,.newsletter button{width:100%;height:44px}
+ .footer-grid{grid-template-columns:1fr}.breaking-text{font-size:12px}
+ .modal-content{padding:0 20px 25px}.modal-content .media{margin:0 -20px 20px;height:220px}.modal-content h2{font-size:25px}
+}
+</style>
+</head>
+<body>
+<div class="topbar"><div class="container topbar-inner"><span id="today"></span><span>Informação local, regional e nacional</span></div></div>
+<header class="header">
+<div class="container header-main"><a class="logo" href="#" onclick="goHome(event)"><strong>AGORA</strong><span>NOTÍCIAS</span></a><div class="header-actions"><button class="icon-btn" id="searchBtn" type="button">Pesquisar</button><button class="icon-btn menu-btn" id="menuBtn" type="button">☰</button></div></div>
+<nav class="nav" id="nav"><div class="container nav-inner"><a href="#" data-category="Todas" class="active">Início</a><a href="#" data-category="Cidade">Cidade</a><a href="#" data-category="Bahia">Bahia</a><a href="#" data-category="Brasil">Brasil</a><a href="#" data-category="Política">Política</a><a href="#" data-category="Esportes">Esportes</a><a href="#" data-category="Economia">Economia</a><a href="#" data-category="Entretenimento">Entretenimento</a></div></nav>
+<div class="search-panel" id="searchPanel"><div class="container search-wrap"><input id="searchInput" type="search" placeholder="Busque por título ou categoria..." autocomplete="off"><button class="clear-search" id="clearSearch" type="button">×</button></div></div>
+</header>
+<main class="container">
+<div class="demo-note"><strong>Demonstração comercial:</strong> usamos notícias reais e fotografias reais apenas para criar uma percepção mais próxima de um portal publicado. No projeto final, textos, créditos e imagens serão definidos e autorizados pelo cliente.</div>
+<div class="ad ad-top">ESPAÇO PUBLICITÁRIO · 970 × 90</div>
+<section class="breaking"><span class="breaking-label">ÚLTIMA HORA</span><p class="breaking-text">Portal preparado para destacar informações importantes e atualizações em tempo real.</p></section>
+<section class="hero-grid" id="heroArea"></section>
+<div class="ad ad-top">ESPAÇO PUBLICITÁRIO · 728 × 90</div>
+<div class="content-grid"><section><div class="section-heading"><h2>Últimas notícias</h2><a href="#" id="showAll">Ver todas →</a></div><div class="news-list" id="newsList"></div><div class="no-results" id="noResults">Nenhuma notícia encontrada para esta busca.</div></section><aside><div class="ad ad-side">ANÚNCIO<br><small>300 × 250</small></div><div class="side-box"><div class="section-heading"><h2>Mais lidas</h2></div><ol class="most-read" id="mostRead"></ol></div><div class="ad ad-side" style="margin-top:20px">ANÚNCIO<br><small>300 × 250</small></div></aside></div>
+<section><div class="section-heading"><h2>Esportes</h2><a href="#" data-category-link="Esportes">Mais notícias →</a></div><div class="cards-3" id="sports"></div></section>
+<div class="ad ad-wide">ESPAÇO PUBLICITÁRIO · 970 × 250</div>
+<section class="newsletter"><div><span class="eyebrow">FIQUE INFORMADO</span><h2>Receba as principais notícias.</h2><p>Estrutura preparada para newsletter e futuras notificações.</p></div><form id="newsletterForm"><input type="email" placeholder="Seu melhor e-mail" required><button type="submit">CADASTRAR</button></form></section>
+</main>
+<footer><div class="container footer-grid"><div><a class="logo footer-logo" href="#" onclick="goHome(event)"><strong>AGORA</strong><span>NOTÍCIAS</span></a><p>Informação local, regional e nacional.</p></div><div><h4>Portal</h4><a href="#" onclick="showToast('Página institucional disponível na versão final.');return false">Sobre</a><a href="#" onclick="showToast('Canal de contato disponível na versão final.');return false">Contato</a><a href="#" onclick="showToast('Área comercial disponível na versão final.');return false">Anuncie</a></div><div><h4>Institucional</h4><a href="#" onclick="showToast('Política de privacidade disponível na versão final.');return false">Política de privacidade</a><a href="#" onclick="showToast('Termos de uso disponíveis na versão final.');return false">Termos de uso</a></div></div><div class="copyright">© 2026 Agora Notícias · Demonstração de projeto · Imagens de referência licenciadas ou usadas apenas para demonstração; validar direitos antes da publicação.</div></footer>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Notícia"><div class="modal-card"><div class="modal-top"><button class="close" id="closeModal" type="button" aria-label="Fechar">×</button></div><div class="modal-content" id="modalContent"></div></div></div>
+<div class="toast" id="toast"></div>
+<script>
+const news=[
+{id:1,cat:"Cidade",title:"Salvador ganha microfloresta com 3,6 mil árvores em área de 5 mil m² na Avenida ACM",excerpt:"A nova área verde foi implantada em um trecho da Avenida ACM e amplia a presença de vegetação em uma das regiões de maior circulação da capital.",time:"22/09/2026",media:"m1",hero:true,source:"Comunidade ON",sourceUrl:"https://comunidadeon.com.br/2026/09/",image:"https://upload.wikimedia.org/wikipedia/commons/d/d9/Salvador_Pelourinho.jpg"},
+{id:2,cat:"Bahia",title:"Carretas do Agora Tem Especialistas já realizaram mais de 113 mil procedimentos na Bahia",excerpt:"Unidades móveis atenderam cerca de 34 mil pessoas em 26 municípios baianos com consultas, exames e cirurgias especializadas.",time:"25/09/2026",media:"m2",source:"Ministério da Saúde",sourceUrl:"https://www.gov.br/saude/pt-br/assuntos/noticias-ms/2026/setembro/carretas-do-agora-tem-especialistas-ja-realizaram-mais-de-113-mil-procedimentos-na-bahia",image:"https://cdn.atarde.com.br/img/inline/1380000/724x0/carreta-de-exames-amplia-atendimento-em-feira-e-re0138329701202603201631-1.webp"},
+{id:3,cat:"Esportes",title:"Dois anos depois, Corinthians e São Paulo decidem Brasileiro Feminino",excerpt:"A final da Série A1 começa neste sábado, com os dois clubes disputando novamente o título nacional.",time:"22/09/2026",media:"m3",source:"Agência Brasil",sourceUrl:"https://agenciabrasil.ebc.com.br/esportes/noticia/2026-09/dois-anos-depois-corinthians-e-sao-paulo-decidem-brasileiro-feminino",image:"https://upload.wikimedia.org/wikipedia/commons/9/9a/Arena_Fonte_Nova_-_1.jpg"},
+{id:4,cat:"Cidade",title:"Prefeitura inicia cadastramento de ambulantes para festas populares de Salvador",excerpt:"Trabalhadores interessados em atuar nas festas populares podem realizar o cadastramento dentro do prazo divulgado pela prefeitura.",time:"22/09/2026",media:"m4",source:"Comunidade ON",sourceUrl:"https://comunidadeon.com.br/2026/09/",image:"https://midias.correio24horas.com.br/2023/11/24/avenida-1932076-article.jpg"},
+{id:5,cat:"Bahia",title:"Mais municípios da Bahia recebem carretas de saúde da mulher e exames de imagem",excerpt:"Santa Maria da Vitória e Vitória da Conquista estão entre as cidades atendidas pelas unidades móveis do Ministério da Saúde.",time:"12/09/2026",media:"m5",source:"Ministério da Saúde",sourceUrl:"https://www.gov.br/saude/pt-br/assuntos/noticias-ms/2026/setembro/populacoes-de-mais-dois-municipios-da-bahia-recebem-carretas-de-saude-da-mulher-e-exames-de-imagem-do-ministerio-da-saude",image:"https://www.ba.gov.br/comunicacao/sites/site-comunicacao/files/2025-10/54825155516_5d3a0c189f_c.jpg"},
+{id:6,cat:"Brasil",title:"Prévia da inflação oficial de setembro fica em 0,70%, mostra IBGE",excerpt:"O IPCA-15 acelerou em setembro, influenciado principalmente pela alta da energia elétrica residencial após a devolução do bônus de Itaipu.",time:"25/09/2026",media:"m6",source:"Agência Brasil / IBGE",sourceUrl:"https://agenciabrasil.ebc.com.br/economia/noticia/2026-09/previa-da-inflacao-oficial-de-setembro-fica-em-070-mostra-ibge",image:"https://upload.wikimedia.org/wikipedia/commons/6/6e/Mar_-_Salvador.jpg"},
+{id:7,cat:"Economia",title:"Polo Industrial de Camaçari completa 48 anos e mantém papel estratégico na economia da Bahia",excerpt:"O complexo industrial segue entre os principais polos econômicos do estado, com presença relevante na indústria e na geração de atividade econômica.",time:"Julho/2026",media:"m7",source:"Muita Informação",sourceUrl:"https://muitainformacao.com.br/negocios/polo-industrial-de-camacari-completa-48-anos-e-mantem-papel-estrategico-na-economia-da-bahia/",image:"https://upload.wikimedia.org/wikipedia/commons/d/d9/Salvador_Pelourinho.jpg"},
+{id:8,cat:"Entretenimento",title:"Festival da Primavera reúne música, cultura, esporte e gastronomia em Salvador",excerpt:"A programação ocupa diferentes espaços da capital baiana durante setembro, reunindo atrações culturais e atividades para moradores e visitantes.",time:"Setembro/2026",media:"m8",source:"Salvador da Bahia",sourceUrl:"https://www.salvadordabahia.com/festival-da-primavera-reune-musica-cultura-esporte-e-gastronomia-em-programacao-que-movimenta-salvador/",image:"https://cdn.atarde.com.br/img/Artigo-Destaque/1350000/Gratuito-Festival-Sonora-celebra-compositoras-baia0135250800202509262042.jpg?xid=6817314"},
+{id:9,cat:"Esportes",title:"Athletico vence Bahia por 2 a 1 e encerra sequência invicta do Tricolor",excerpt:"O resultado aconteceu pela 28ª rodada do Campeonato Brasileiro, em Curitiba.",time:"20/09/2026",media:"m9",source:"UOL Esporte",sourceUrl:"https://www.uol.com.br/esporte/futebol/ultimas-noticias/2026/09/20/athletico-x-bahia.ghtm",image:"https://upload.wikimedia.org/wikipedia/commons/9/9a/Arena_Fonte_Nova_-_1.jpg"},
+{id:10,cat:"Esportes",title:"Corinthians elimina Bahia e avança à décima final consecutiva do Brasileiro Feminino",excerpt:"A equipe paulista venceu novamente por 1 a 0 e garantiu vaga na decisão nacional.",time:"22/09/2026",media:"m3",source:"Agência Brasil",sourceUrl:"https://agenciabrasil.ebc.com.br/esportes/noticia/2026-09/futebol-feminino-tv-brasil-exibe-corinthians-e-bahia-pela-semifinal",image:"https://upload.wikimedia.org/wikipedia/commons/9/9a/Arena_Fonte_Nova_-_1.jpg"},
+{id:11,cat:"Esportes",title:"Bahia se prepara para a sequência decisiva do Campeonato Brasileiro",excerpt:"O calendário nacional volta a concentrar partidas importantes após a pausa para a data Fifa.",time:"Setembro/2026",media:"m4",source:"Demonstração editorial",sourceUrl:"#",image:"https://upload.wikimedia.org/wikipedia/commons/9/9a/Arena_Fonte_Nova_-_1.jpg"}];
+
+const heroArea=document.getElementById("heroArea"),newsList=document.getElementById("newsList"),sports=document.getElementById("sports"),mostRead=document.getElementById("mostRead"),noResults=document.getElementById("noResults"),modal=document.getElementById("modal"),modalContent=document.getElementById("modalContent"),toast=document.getElementById("toast");
+function card(n,type="news"){const cls=type==="story"?"story-card":type==="grid"?"grid-card":"news-item";const heading=type==="hero"?"h1":type==="story"?"h2":"h3";return `<article class="${cls}" data-id="${n.id}" tabindex="0" role="button"><div class="media has-photo ${n.media} ${type==="hero"?"large":""}" style="background-image:url('${n.image}')"><span class="tag">${n.cat.toUpperCase()}</span></div><div><span class="kicker">${n.cat}</span><${heading}>${n.title}</${heading}>${type!=="grid"?`<p class="excerpt">${n.excerpt}</p>`:""}<small class="meta">${n.time} · Redação</small>${type==="grid"?`<small class="source-note">Fonte: ${n.source}</small>`:""}</div></article>`}
+function renderHome(){const hero=news[0],side=[news[1],news[2]];heroArea.innerHTML=`<article class="hero" data-id="${hero.id}" tabindex="0" role="button"><div class="media large has-photo ${hero.media}" style="background-image:url('${hero.image}')"><span class="tag">DESTAQUE</span></div><div class="hero-copy"><span class="kicker">${hero.cat}</span><h1>${hero.title}</h1><p class="excerpt">${hero.excerpt}</p><small class="meta">${hero.time} · Redação</small><small class="source-note">Fonte: ${hero.source}</small></div></article><div class="side-stories">${side.map(n=>card(n,"story")).join("")}</div>`;renderList(news.slice(3,9));sports.innerHTML=news.filter(n=>n.cat==="Esportes").slice(0,3).map(n=>card(n,"grid")).join("");mostRead.innerHTML=[news[4],news[0],news[7],news[6],news[2]].map((n,i)=>`<li data-id="${n.id}" tabindex="0"><b>${String(i+1).padStart(2,"0")}</b><span>${n.title}</span></li>`).join("");bindCards()}
+function renderList(items){newsList.innerHTML=items.map(n=>card(n)).join("");noResults.style.display=items.length?"none":"block";bindCards()}
+function openArticle(id){const n=news.find(x=>x.id===Number(id));if(!n)return;modalContent.innerHTML=`<div class="media has-photo ${n.media}" style="background-image:url('${n.image}')"><span class="tag">${n.cat.toUpperCase()}</span></div><span class="kicker">${n.cat}</span><h2>${n.title}</h2><small class="meta">${n.time} · Redação</small><small class="source-note">Fonte: ${n.source}</small><p>${n.excerpt}</p><p>Esta é uma reprodução demonstrativa da experiência de leitura. Na versão final, cada publicação poderá receber texto completo, galeria de imagens, vídeo, links relacionados, compartilhamento e demais recursos editoriais.</p><p><strong>Conteúdo usado para demonstração comercial.</strong> A publicação definitiva dependerá da autorização de uso das informações e imagens.</p>`;modal.classList.add("open");document.body.style.overflow="hidden"}
+function closeModal(){modal.classList.remove("open");document.body.style.overflow=""}
+function bindCards(){document.querySelectorAll("[data-id]").forEach(el=>{el.onclick=()=>openArticle(el.dataset.id);el.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openArticle(el.dataset.id)}}})}
+function filterCategory(cat){document.querySelectorAll(".nav a").forEach(a=>a.classList.toggle("active",a.dataset.category===cat));const items=cat==="Todas"?news.slice(3,9):news.filter(n=>n.cat===cat&&n.id!==1);renderList(items);document.querySelector(".content-grid").scrollIntoView({behavior:"smooth",block:"start"})}
+function normalizeSearch(value){return String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim()}
+function doSearch(term,moveToResults=true){const q=normalizeSearch(term);if(!q){renderHome();return}const items=news.filter(n=>[n.title,n.excerpt,n.cat,n.source,n.time].filter(Boolean).join(" ").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().includes(q));document.querySelectorAll(".nav a").forEach(a=>a.classList.remove("active"));const safeTerm=String(term).replace(/[<>]/g,"");heroArea.innerHTML=`<div class="section-heading"><span class="kicker">Busca</span><h1>Resultados para “${safeTerm}”</h1><p class="excerpt">${items.length} publicação(ões) encontrada(s).</p></div>`;document.querySelector(".side-stories").innerHTML="";renderList(items);if(moveToResults)document.querySelector(".content-grid").scrollIntoView({behavior:"smooth",block:"start"})}
+function showToast(message){toast.textContent=message;toast.classList.add("show");clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>toast.classList.remove("show"),2600)}
+function goHome(e){e.preventDefault();document.querySelector(".nav a").click();window.scrollTo({top:0,behavior:"smooth"})}
+document.getElementById("today").textContent=new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"2-digit",month:"long",year:"numeric"});
+document.getElementById("menuBtn").onclick=()=>document.getElementById("nav").classList.toggle("open");
+document.getElementById("searchBtn").onclick=()=>{const p=document.getElementById("searchPanel");p.classList.toggle("open");if(p.classList.contains("open"))document.getElementById("searchInput").focus()};
+document.getElementById("searchInput").oninput=e=>doSearch(e.target.value,false);
+document.getElementById("searchInput").onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();doSearch(e.target.value,true)}};
+document.getElementById("clearSearch").onclick=()=>{document.getElementById("searchInput").value="";renderHome();document.getElementById("searchPanel").classList.remove("open")};
+document.querySelectorAll(".nav a").forEach(a=>a.onclick=e=>{e.preventDefault();filterCategory(a.dataset.category)});
+document.getElementById("showAll").onclick=e=>{e.preventDefault();filterCategory("Todas")};
+document.querySelector("[data-category-link]").onclick=e=>{e.preventDefault();filterCategory("Esportes")};
+document.getElementById("closeModal").onclick=closeModal;
+modal.onclick=e=>{if(e.target===modal)closeModal()};
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
+document.getElementById("newsletterForm").onsubmit=e=>{e.preventDefault();showToast("Demonstração: cadastro realizado com sucesso.");e.target.reset()};
+renderHome();
+</script>
+</body>
+</html>
